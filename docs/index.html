@@ -1,1 +1,54 @@
-Test
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ethers.js in HTML</title>
+</head>
+<body>
+
+    <h1>Ethers.js Browser Example</h1>
+    <button id="connectBtn">Connect Wallet</button>
+    <p>Address: <span id="walletAddress">Not connected</span></p>
+    <p>Balance: <span id="walletBalance">0</span> ETH</p>
+
+    <!-- Load Ethers v6 as an ES Module -->
+    <script type="module">
+        import { ethers } from "https://cloudflare.com";
+
+        const connectBtn = document.getElementById('connectBtn');
+        const addressSpan = document.getElementById('walletAddress');
+        const balanceSpan = document.getElementById('walletBalance');
+
+        async function connectWallet() {
+            // Check if MetaMask or an injected browser wallet exists
+            if (window.ethereum) {
+                try {
+                    // Initialize the browser provider
+                    const provider = new ethers.BrowserProvider(window.ethereum);
+                    
+                    // Request account access from the wallet
+                    const signer = await provider.getSigner();
+                    const address = await signer.getAddress();
+                    
+                    // Fetch the balance of the connected address
+                    const balance = await provider.getBalance(address);
+                    // Format the balance from Wei to Ether
+                    const formattedBalance = ethers.formatEther(balance);
+
+                    // Update UI elements
+                    addressSpan.innerText = address;
+                    balanceSpan.innerText = parseFloat(formattedBalance).toFixed(4);
+                } catch (error) {
+                    console.error("User denied account access or error occurred:", error);
+                }
+            } else {
+                alert("Please install a Web3 wallet like MetaMask!");
+            }
+        }
+
+        connectBtn.addEventListener('click', connectWallet);
+    </script>
+</body>
+</html>
+
